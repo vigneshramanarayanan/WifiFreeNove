@@ -1,0 +1,99 @@
+<html>
+<head>
+    <style>
+        
+        .arrow-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            width: 300px;
+            height: 300px;
+        }
+        .arrow-button {
+            background-color: #4c74af;
+            border: none;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 36px;
+            margin: 2px 2px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            
+        }
+        .arrow-button:hover {
+            background-color: #45a049;
+            transform: scale(1.1);
+        }
+        .arrow-button:active {
+            background-color: #3e8e41;
+            transform: scale(0.95);
+        }
+        .up {
+            grid-column: 2;
+            grid-row: 1;
+            justify-self: center;
+        }
+        .right {
+            grid-column: 3;
+            grid-row: 2;
+            align-self: center;
+        }
+        .down {
+            grid-column: 2;
+            grid-row: 3;
+            justify-self: center;
+        }
+        .left {
+            grid-column: 1;
+            grid-row: 2;
+            align-self: center;
+        }
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .stop {
+            grid-column: 2; /* Center column */
+            grid-row: 2;   /* Center row */
+            justify-self: center; /* Center horizontally */
+            align-self: center;   /* Center vertically */
+        }
+        .stop-button {
+            background-color: red; /* Red color for the Stop button */
+            color: white;
+            font-size: 24px; /* Slightly smaller text */
+            border-radius: 50%; /* Circular button */
+        }
+        .stop-button:hover {
+            background-color: darkred; /* Darker red on hover */
+        }
+    </style>
+</head>
+<script src="index.js"></script>
+
+<body>
+
+<h1>Freenove Wifi Controller</h1>
+
+<p>
+<div class="arrow-container">    
+    <button class="arrow-button up" onclick="client('MoveForward')">↑</button>
+    <button class="arrow-button right" onclick="client('MoveRight')">→</button>
+    <button class="arrow-button down" onclick="client('MoveBackward')">↓</button>
+    <button class="arrow-button left" onclick="client('MoveLeft')">←</button>
+    <button class="arrow-button stop stop-button" onclick="client('Stop')">STOP</button>
+</div>
+</p>
+
+<br>
+<span id="greet"> </span>
+<br>
+<span id="greet_from_server"> </span>
+</body>
+
+</html>
