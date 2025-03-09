@@ -6,37 +6,54 @@ from Ultrasonic import *
 ultrasonic=Ultrasonic()  
 
 def MoveForward(client): 		
- print ("The car is moving forward")
- uData=ultrasonic.get_distance()   #Get the value
- strData = "Obstacle distance is "+str(uData)+"CM"                            
- client.sendall(strData.encode('utf-8')) 
- if(uData < 60):        
-  PWM.setMotorModel(0,0,0,0)
- else:
-  PWM.setMotorModel(1000,1000,1000,1000)
- return uData#Forward
+ try:
+     print ("The car is moving forward")     
+     PWM.setMotorModel(1000,1000,1000,1000)
+     
+ except Exception as e:
+        print(f"MoveForward An error occurred: {e}")  
     
     
 
-def MoveBackward():
-    PWM.setMotorModel(-1000,-1000,-1000,-1000)     #Back
-    print ("The car is going backwards")
-    time.sleep(1)
-    PWM.setMotorModel(0,0,0,0)
+def MoveBackward(client):
+    try:
+        PWM.setMotorModel(-1000,-1000,-1000,-1000)     #Back
+        print ("The car is going backwards")
+        strData = "The car is going backwards"        
+        SendBackToClient(client,strData)                            
+        time.sleep(1)    
+        PWM.setMotorModel(0,0,0,0)
+    except Exception as e:
+        print(f"An error occurred: {e}")  
 
 	
-def MoveLeft():
-    PWM.setMotorModel(-800,-800,1200,1200)       #Turn left
-    print ("The car is turning left")
-    time.sleep(1)
-    PWM.setMotorModel(0,0,0,0)
+def MoveLeft(client):
+    try:
+        PWM.setMotorModel(-800,-800,1000,1000)       #Turn left
+        strData = "The car is turning left"                            
+        SendBackToClient(client,strData)    
+        time.sleep(1)
+        PWM.setMotorModel(0,0,0,0)
+    except Exception as e:
+        print(f"An error occurred: {e}")  
 
 
-def MoveRight():
-    PWM.setMotorModel(1200,1200,-800,-800)       #Turn right 
-    print ("The car is turning right")
-    time.sleep(1)
-    PWM.setMotorModel(0,0,0,0)
+def MoveRight(client):
+    try:
+        PWM.setMotorModel(1000,1000,-800,-800)       #Turn right     
+        strData = "The car is turning right"                            
+        SendBackToClient(client,strData)
+        time.sleep(1)
+        PWM.setMotorModel(0,0,0,0)
+    except Exception as e:
+        print(f"An error occurred: {e}")  
+
+
+def SendBackToClient(client,strData):
+    try:
+        client.sendall(strData.encode('utf-8')) 
+    except Exception as e:
+        print(f"SendBackToClient An error occurred: {e}")  
 
 
 def GetDecoded(client):
@@ -63,34 +80,37 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             print("Server connected to:", clientInfo)
             with client:  # Use a context manager for the client socket
                 while True:                    
-                    decoded = GetDecoded(client)                   
+                    decoded = GetDecoded(client)                       
+                    while decoded == "MoveForwardTillObstacle":                       
+                        uData=ultrasonic.get_distance()   #Get the value                        
+                        strData = "Obstacle distance is "+str(uData)+"CM"                            
+                        client.sendall(strData.encode('utf-8'))                         
+                        if(uData < 60):        
+                            PWM.setMotorModel(0,0,0,0)
+                            break
+                        else:
+                            MoveForward(client)                        
                     if(decoded == "Stop"):
-                        PWM.setMotorModel(0,0,0,0)                        
-                    while decoded == "MoveForward":
-                       if MoveForward(client) < 60:
-                           break                           
+                        PWM.setMotorModel(0,0,0,0)
+                        strData = "The car has stopped"                            
+                        SendBackToClient(client,strData)
+                    if decoded == "MoveForward":                        
+                        MoveForward(client)                        
                     if decoded == "MoveBackward":                        
-                        MoveBackward()                        
+                        MoveBackward(client)                        
                     if decoded == "MoveLeft":
                         print("MoveLeft")
-                        MoveLeft()                                                           
+                        MoveLeft(client)                                                           
                     if decoded == "MoveRight":
                         print("MoveRight")
-                        MoveRight()                                                                                                 
+                        MoveRight(client)                                                                                                 
                     else:                                           
-                        break
-                    
-                                              
+                        break                 
     except KeyboardInterrupt:
         print("Server shutting down...")        
-        
-        s.close()
         PWM.setMotorModel(0,0,0,0)
     except Exception as e:
         print(f"An error occurred: {e}")   
-        
-        s.close()
         PWM.setMotorModel(0,0,0,0)
-    finally:        
-        
+    finally:                
         s.close()
