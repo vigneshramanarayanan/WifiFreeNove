@@ -1,30 +1,40 @@
-var server_port = 65432;
-var server_addr = "192.168.86.38";   // the IP address of your Raspberry PI
+const net = require('net');
+
+let clientSocket = null;
+const server_port = 65432;
+const server_addr = "192.168.86.38";   // the IP address of your Raspberry PI
+
+function getClientSocket() {
+    if (!clientSocket || clientSocket.destroyed) {
+        clientSocket = net.createConnection({ port: server_port, host: server_addr }, () => {
+            console.log('Connected to server!');
+        });
+
+        clientSocket.on('data', (data) => {
+            document.getElementById("greet_from_server").innerHTML = data;
+            console.log(data.toString());
+        });
+
+        clientSocket.on('end', () => {
+            console.log('Disconnected from server');
+            clientSocket = null;
+        });
+
+        clientSocket.on('error', (err) => {
+            console.error('Socket error:', err);
+            clientSocket = null;
+        });
+    }
+    return clientSocket;
+}
 
 function client(input){
     
     const net = require('net');
     //var input = document.getElementById("myName").value;
 
-    const client = net.createConnection({ port: server_port, host: server_addr }, () => {
-        // 'connect' listener.
-        console.log('connected to server!');
-        // send the message
-        client.write(`${input}`);
-    });
-    
-    // get the data from the server
-    client.on('data', (data) => {
-        document.getElementById("greet_from_server").innerHTML = "";
-        document.getElementById("greet_from_server").innerHTML = data;
-        console.log(data.toString());
-        //client.end();
-        //client.destroy();
-    });
-
-    client.on('end', () => {
-        console.log('disconnected from server');
-    });
+    const socket = getClientSocket();
+    socket.write(`${input}`);    
 }
 
 function greeting(){
